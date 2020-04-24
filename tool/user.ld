@@ -1,4 +1,4 @@
-OUTPUT_FORMAT("a.out-i386-linux")
+OUTPUT_FORMAT("elf32-i386")
 ENTRY(_start)
 
 SECTIONS {

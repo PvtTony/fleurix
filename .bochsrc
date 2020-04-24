@@ -1,8 +1,8 @@
 # You many now use double quotes around pathnames, in case
 # your pathname includes spaces.
 
-romimage: file=/usr/share/bochs/BIOS-bochs-latest
-vgaromimage: file=/usr/share/bochs/VGABIOS-lgpl-latest
+romimage: file="$BXSHARE/BIOS-bochs-latest" 
+vgaromimage: file="$BXSHARE/VGABIOS-lgpl-latest"
 
 # size of memory
 megs: 128
@@ -22,16 +22,19 @@ debug: action=ignore
 
 # gdbstub: enabled=1, port=1234, text_base=0, data_base=0, bss_base=0
 
-vga_update_interval: 300000
-keyboard_serial_delay: 250
-keyboard_paste_delay: 100000
+#vga_update_interval: 300000 --> dont have this plugin
+#keyboard_serial_delay: 250 --> deprecated
+#keyboard_paste_delay: 100000 --> deprecated
 mouse: enabled=0
 private_colormap: enabled=0
 fullscreen: enabled=0
 screenmode: name="sample"
-keyboard_mapping: enabled=0, map=
-keyboard_type: at
-
+#keyboard_mapping: enabled=0, map=  --> deprecated
+#keyboard_type: at  --> deprecated
+keyboard: keymap="$BXSHARE/keymaps/x11-pc-us.map"
 debug_symbols: file=main.sym
 
 #keyboard_type: at
+
+# GUI debug
+display_library: x, options="gui_debug"

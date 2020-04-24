@@ -1,5 +1,6 @@
 cinc   = '-Isrc/inc -Isrc/inc/usr'
 cflag  = %{
+  -m32
   -Wall
   -nostdinc -fno-builtin -fno-stack-protector
   -finline-functions -finline-small-functions -findirect-inlining -finline-functions -finline-functions-called-once
@@ -69,7 +70,7 @@ file 'bin/boot.o' => ['src/boot/boot.S'] do
 end
 
 file 'bin/boot.bin' => ['bin/boot.o', 'tool/boot.ld'] do
-  sh "ld bin/boot.o -o bin/boot.bin -e c -T tool/boot.ld"
+  sh "ld -m elf_i386 bin/boot.o -o bin/boot.bin -e c -T tool/boot.ld"
 end
 
 # ---------------------------------------------------------------------
@@ -104,7 +105,7 @@ file 'bin/main.bin' => 'bin/main.elf' do
 end
 
 file 'bin/main.elf' => ofiles + ['tool/main.ld'] do
-  sh "ld #{ofiles * ' '} -o bin/main.elf -e c -T tool/main.ld"
+  sh "ld -m elf_i386 #{ofiles * ' '} -o bin/main.elf -e c -T tool/main.ld"
   sh "(nm bin/main.elf | sort) > main.sym"
 end
 
@@ -120,7 +121,7 @@ task :rootfs => ['bin/rootfs.img']
 # init and copy some thing into the hard disk image.
 file 'bin/rootfs.img' => [:usr] do
   `rm -f bin/rootfs.img`
-  sh "bximage bin/rootfs.img -hd -mode=flat -size=1 -q"
+  sh "bximage bin/rootfs.img -hd=10M -imgmode=flat -mode=create -q"
   sh "mkfs.minix bin/rootfs.img"
   mkdir_p '/tmp/fx_mnt_root'
   `sudo umount /tmp/fx_mnt_root`
@@ -159,7 +160,7 @@ libsys_cfiles.each do |fn_c|
   fn = File.basename(fn_c).ext('')
   fn_o = 'bin/libsys/'+fn.ext('o')
   file fn_o => fn_c do
-    sh "gcc -c #{cinc} -nostdinc -fno-builtin -fno-stack-protector #{fn_c} -o #{fn_o}"
+    sh "gcc -m32 -c #{cinc} -nostdinc -fno-builtin -fno-stack-protector #{fn_c} -o #{fn_o}"
   end
 end
 
@@ -168,8 +169,8 @@ usr_cfiles.each do |fn_c|
   fn_o = 'bin/usr/'+fn.ext('o')
   fn_e = 'bin/usr/'+fn
   file fn_e => [fn_c, :libsys, 'tool/user.ld'] do
-    sh "gcc -c #{cinc} -nostdinc -fno-builtin -fno-stack-protector #{fn_c} -o #{fn_o}"
-    sh "ld #{libsys_ofiles*' '} #{fn_o} -o #{fn_e} -e c -T tool/user.ld"
+    sh "gcc -m32 -c #{cinc} -nostdinc -fno-builtin -fno-stack-protector #{fn_c} -o #{fn_o}"
+    sh "ld -m elf_i386 #{libsys_ofiles*' '} #{fn_o} -o #{fn_e} -e c -T tool/user.ld"
     sh "nm #{fn_e} > #{fn_o.ext('sym')}"
     sh "objdump -S #{fn_e} > #{fn_e.ext('S')}"
     sh "cp #{fn_e} root/bin/#{fn}"

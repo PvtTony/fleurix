@@ -36,7 +36,7 @@ struct bucket bkfreelist = {0, };
 
 /* ---------------------------------------------------------- */
 
-inline int bkslot(int size){
+static inline int bkslot(int size){
     int n,i;
 
     if (size <= 0)
