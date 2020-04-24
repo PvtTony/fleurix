@@ -38,3 +38,6 @@ debug_symbols: file=main.sym
 
 # GUI debug
 display_library: x, options="gui_debug"
+
+# Magic Break
+magic_break: enabled=1
