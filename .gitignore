@@ -6,3 +6,4 @@ root/bin/*
 .bochsout
 main.sym
 tags
+bx_enh_dbg.ini

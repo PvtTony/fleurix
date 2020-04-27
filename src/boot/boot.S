@@ -101,9 +101,15 @@ seta20.2:
     or      eax, 1
     mov     cr0, eax
     ; jump, set seg registers as selector
+    ; selector
+    ; 0 - 2 --> Privilege Mode 
+    ; 3 --> 0 = GDT, 1 = LDT
+    ; 4 - 15 --> Index
+    ; 08h --> 0000 0000 0000 1000
     jmp     08h:_start_pm
 
 ;; -------------------------------------------------------------
+;; Protected mode
 
 [bits 32]
 
@@ -131,8 +137,23 @@ _hang:
     jmp     _hang
 
 gdt:
+; The null descriptor which is never referenced by the processor. 
 gdt_null:
     dd  0, 0
+; code segment descriptor 
+; Limit 0xfffff
+; Base 0
+; Access Byte: 1001 1010
+;   Pr: Present bit = 1
+;   Privl: Privilege = 00 (kernel)
+;   S: Descriptor type = 1
+;   Ex: Executable bit = 1
+;   DC: Direction bit/Conforming bit = 0
+;   RW: Readable bit/Writable bit = 1
+;   Ac: Accessed bit = 0
+; Flags: 1100
+;   Gr: Granularity bit = 1
+;   Sz: Size bit = 1
 gdt_code:
     ; dword 1
     dw  0xffff
@@ -142,6 +163,20 @@ gdt_code:
     db  10011010b
     db  11001111b
     db  0
+; data segment descriptor
+; Limit 0xfffff
+; Base 0
+; Access Byte: 1001 0010
+;   Pr: Present bit = 1
+;   Privl: Privilege = 00 (kernel)
+;   S: Descriptor type = 1
+;   Ex: Executable bit = 0
+;   DC: Direction bit/Conforming bit = 0
+;   RW: Readable bit/Writable bit = 1
+;   Ac: Accessed bit = 0
+; Flags: 1100
+;   Gr: Granularity bit = 1
+;   Sz: Size bit = 1
 gdt_data:
     ; dword 1
     dw  0xffff
@@ -153,8 +188,11 @@ gdt_data:
     db  0
 gdt_end:
 
+;GDT Descriptor
 gdt_desc:
+    ; GDT Size
     dw  gdt_end - gdt - 1
+    ; GDT Mem Offset
     dd  gdt
 
 ; Magic number for sector
